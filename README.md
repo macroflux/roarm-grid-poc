@@ -1,7 +1,7 @@
 # RoArm Grid POC
 
 Proof-of-concept: overhead USB camera watches a table with a **blue origin square** and **black target square**.  
-If an object is detected in the blue square, a Waveshare **RoArm-M2-S** robot arm will attempt to pick it up and place it in the black square.
+If an object is detected in the blue square, **M2** robot arm will attempt to pick it up and place it in the black square.
 
 This is a standalone lab repo designed with a "Monad-ish" structure:
 - `vision/` – camera + color-based detection of origin/target/object
