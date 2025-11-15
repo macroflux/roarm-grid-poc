@@ -11,12 +11,25 @@ from telemetry.logger import TelemetryLogger
 
 
 def load_settings(path: str = "config/settings.yaml") -> dict:
-    with open(path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"Failed to load configuration file '{path}': {e}") from e
+    except yaml.YAMLError as e:
+        raise yaml.YAMLError(f"Failed to parse YAML in configuration file '{path}': {e}") from e
+    except Exception as e:
+        raise RuntimeError(f"Unexpected error loading configuration file '{path}': {e}") from e
 
 
 def main():
     settings = load_settings()
+
+    # Validate required configuration sections
+    required_sections = ["camera", "vision", "arm", "controller"]
+    missing_sections = [section for section in required_sections if section not in settings]
+    if missing_sections:
+        raise ValueError(f"Missing required configuration sections in settings.yaml: {', '.join(missing_sections)}")
 
     cam_cfg = settings["camera"]
     vision_cfg = settings["vision"]

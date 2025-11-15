@@ -19,9 +19,12 @@ class RoArmClient:
         raw = json.dumps(payload)
         encoded = urllib.parse.quote(raw)
         url = f"http://{self.ip}/js?json={encoded}"
-        resp = requests.get(url, timeout=5)
-        resp.raise_for_status()
-        return resp.text
+        try:
+            resp = requests.get(url, timeout=5)
+            resp.raise_for_status()
+            return resp.text
+        except requests.RequestException as e:
+            raise RuntimeError(f"Network error during arm command: {payload} to {url}: {e}") from e
 
     # --- Basic motion commands ---
 

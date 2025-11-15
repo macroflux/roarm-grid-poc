@@ -22,8 +22,8 @@ controller:
   # Pre-recorded joint angles in degrees for simple pick-and-place
   # You will fill these by using the Web UI and reading angles, then pasting here.
   pose_home:        [0, 0, 90, 180]
-  pose_above_origin:[0, 0, 90, 180]
-  pose_pick_origin: [0, 0, 80, 180]
+  pose_above_origin:[45, 0, 90, 180]   # Example: base rotated to 45 deg to point at origin
+  pose_pick_origin: [45, 0, 80, 180]
   pose_above_target:[90, 0, 90, 180]
   pose_place_target:[90, 0, 80, 180]
 

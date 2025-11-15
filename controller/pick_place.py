@@ -31,6 +31,11 @@ class PickPlaceController:
         - Move above target
         - Descend to place pose, open grip
         - Move back up
+        
+        Raises:
+            RuntimeError: If network communication with the arm fails
+            requests.RequestException: If HTTP request to arm controller fails
+            ValueError: If joint angles are invalid or out of range
         """
         spd = self.cfg.spd
         acc = self.cfg.acc
