@@ -1,0 +1,34 @@
+camera:
+  index: 0            # USB camera index on Windows
+  width: 1280
+  height: 720
+
+arm:
+  ip: "192.168.10.104"  # replace with the IP shown on RoArm OLED in WIFI STA/AP mode
+
+vision:
+  # HSV ranges are very scene-dependent; these are placeholders.
+  # Use an HSV inspector or simple debug prints to tune.
+  blue_lower: [90, 80, 50]     # H, S, V
+  blue_upper: [130, 255, 255]
+
+  black_lower: [0, 0, 0]
+  black_upper: [180, 255, 60]
+
+  min_zone_area: 2000   # minimum contour area to treat as zone (px^2)
+  min_object_area: 800  # minimum contour area inside origin box to treat as object
+
+controller:
+  # Pre-recorded joint angles in degrees for simple pick-and-place
+  # You will fill these by using the Web UI and reading angles, then pasting here.
+  pose_home:        [0, 0, 90, 180]
+  pose_above_origin:[0, 0, 90, 180]
+  pose_pick_origin: [0, 0, 80, 180]
+  pose_above_target:[90, 0, 90, 180]
+  pose_place_target:[90, 0, 80, 180]
+
+  speed_deg_per_s:  10
+  acc_deg_per_s2:   10
+
+  grip_closed_rad:  3.14   # clamp closed (max)
+  grip_open_rad:    1.20   # clamp open (between 1.08 and 3.14)
