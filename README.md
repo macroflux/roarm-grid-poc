@@ -5,7 +5,7 @@ If an object is detected in the blue square, **M2** robot arm will attempt to pi
 
 This is a standalone lab repo designed with a "Monad-ish" structure:
 - `vision/` – camera + color-based detection of origin/target/object
-- `arm/` – thin HTTP JSON client for RoArm-M2-S
+- `arm/` – thin HTTP JSON client for M2-S
 - `controller/` – pick-and-place routine
 - `telemetry/` – simple JSONL logging
 - `main.py` – orchestrator loop
