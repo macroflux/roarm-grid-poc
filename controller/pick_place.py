@@ -54,7 +54,8 @@ class PickPlaceController:
             z = fb["z"]
             t = fb.get("t", 0.0)
         except KeyError as e:
-            print(f"Warning: Arm feedback missing expected key '{e.args[0]}'. Skipping lift operation.")
+            key_name = e.args[0] if e.args else 'unknown'
+            print(f"Warning: Arm feedback missing expected key '{key_name}'. Skipping lift operation.")
             return
 
         # Move slightly up (or down) from current pose
