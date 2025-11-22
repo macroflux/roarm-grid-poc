@@ -35,7 +35,9 @@ class PickPlaceController:
     def _lift_z(self, delta_z: float):
         """
         Lift the current end-effector position along Z by delta_z (same units as feedback).
-        If something goes wrong, fail silently so we don't crash the POC.
+
+        If something goes wrong (e.g., feedback is unavailable or malformed), returns without lifting.
+        The arm will continue from its current position. This is to fail silently so we don't crash the POC.
         """
         if delta_z == 0:
             return
