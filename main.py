@@ -114,7 +114,9 @@ def main():
                     frame,
                     origin_box,
                     min_object_area=min_object_area,
-                    min_object_saturation=int(vision_cfg.get("min_object_saturation", 60)),
+                    object_min_saturation=int(vision_cfg.get("object_min_saturation", 60)),
+                    object_min_value=int(vision_cfg.get("object_min_value", 60)),
+                    object_max_value=int(vision_cfg.get("object_max_value", 220)),
                 )
                 if object_center:
                     draw_object_center(frame, object_center)
