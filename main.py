@@ -82,7 +82,7 @@ def main():
         system_ready = True
         print("Home position reached. System ready.")
     except Exception as e:
-        print("Warning: failed to move to home pose at startup:", e)
+        print("Warning: failed to move to home pose at startup. Automation will remain disabled:", e)
 
     busy = False
 
