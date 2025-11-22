@@ -1,10 +1,12 @@
+startup_homing_delay_s: 4.0   # seconds to wait after go_home before enabling automation
+
 camera:
-  index: 0            # USB camera index on Windows
+  index: 1            # USB camera index on Windows
   width: 1280
   height: 720
 
 arm:
-  ip: "192.168.10.104"  # replace with the IP shown on RoArm OLED in WIFI STA/AP mode
+  ip: "192.168.4.1"  # Default AP (Access Point) mode IP; replace with the IP shown on RoArm OLED for your current WiFi mode (AP or STA)
 
 vision:
   # HSV ranges are very scene-dependent; these are placeholders.
@@ -12,23 +14,29 @@ vision:
   blue_lower: [90, 80, 50]     # H, S, V
   blue_upper: [130, 255, 255]
 
-  black_lower: [0, 0, 0]
-  black_upper: [180, 255, 60]
+  # Red target square (tune as needed)
+  red_lower: [0, 100, 50]
+  red_upper: [10, 255, 255]
 
   min_zone_area: 2000   # minimum contour area to treat as zone (px^2)
   min_object_area: 800  # minimum contour area inside origin box to treat as object
+  
+  # Ignore low-saturation (grey/white) pixels when looking for objects
+  min_object_saturation: 60  # tune 50-80 to filter out background
 
 controller:
   # Pre-recorded joint angles in degrees for simple pick-and-place
   # You will fill these by using the Web UI and reading angles, then pasting here.
-  pose_home:        [0, 0, 90, 180]
-  pose_above_origin:[45, 0, 90, 180]   # Example: base rotated to 45 deg to point at origin
-  pose_pick_origin: [45, 0, 80, 180]
-  pose_above_target:[90, 0, 90, 180]
-  pose_place_target:[90, 0, 80, 180]
+  pose_home:         [22.060, 1.318, 83.270, 180.330]
+  pose_above_origin: [2.284, 78.413, 98.689, 180.330]
+  pose_pick_origin:  [25.140, 84.763, 88.610, 180.570]
+  pose_above_target: [-1.494, 90.620, 55.660, 180.660]
+  pose_place_target: [16.080, 90.800, 55.920, 180.660]
 
-  speed_deg_per_s:  10
-  acc_deg_per_s2:   10
+  speed_deg_per_s:  30
+  acc_deg_per_s2:   30
 
   grip_closed_rad:  3.14   # clamp closed (max)
   grip_open_rad:    1.20   # clamp open (between 1.08 and 3.14)
+  z_lift_mm:        50     # Z-axis lift amount (try 40-60 for higher clearance)
+  pause_between_moves: 0.5  # seconds to wait between motion segments
