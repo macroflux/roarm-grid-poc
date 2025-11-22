@@ -39,3 +39,4 @@ controller:
   grip_closed_rad:  3.14   # clamp closed (max)
   grip_open_rad:    1.20   # clamp open (between 1.08 and 3.14)
   z_lift_mm:        50     # Z-axis lift amount (try 40-60 for higher clearance)
+  pause_between_moves: 0.5  # seconds to wait between motion segments
