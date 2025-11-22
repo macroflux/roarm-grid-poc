@@ -6,7 +6,7 @@ camera:
   height: 720
 
 arm:
-  ip: "192.168.4.1"  # replace with the IP shown on RoArm OLED in WIFI STA/AP mode
+  ip: "192.168.4.1"  # Default AP (Access Point) mode IP; replace with the IP shown on RoArm OLED for your current WiFi mode (AP or STA)
 
 vision:
   # HSV ranges are very scene-dependent; these are placeholders.
