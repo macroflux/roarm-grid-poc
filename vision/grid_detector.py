@@ -34,8 +34,8 @@ def detect_zones(
     frame_bgr: np.ndarray,
     blue_lower: np.ndarray,
     blue_upper: np.ndarray,
-    black_lower: np.ndarray,
-    black_upper: np.ndarray,
+    red_lower: np.ndarray,
+    red_upper: np.ndarray,
     min_zone_area: int,
 ) -> Tuple[Optional[Box], Optional[Box]]:
     """
@@ -45,10 +45,10 @@ def detect_zones(
     hsv = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2HSV)
 
     blue_mask = cv2.inRange(hsv, blue_lower, blue_upper)
-    black_mask = cv2.inRange(hsv, black_lower, black_upper)
+    red_mask = cv2.inRange(hsv, red_lower, red_upper)
 
     origin_box = _largest_contour_box(blue_mask, min_zone_area)
-    target_box = _largest_contour_box(black_mask, min_zone_area)
+    target_box = _largest_contour_box(red_mask, min_zone_area)
 
     return origin_box, target_box
 

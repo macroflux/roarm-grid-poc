@@ -1,3 +1,4 @@
+import time
 import cv2
 import numpy as np
 import yaml
@@ -45,8 +46,8 @@ def main():
 
     blue_lower = np.array(vision_cfg["blue_lower"], dtype=np.uint8)
     blue_upper = np.array(vision_cfg["blue_upper"], dtype=np.uint8)
-    black_lower = np.array(vision_cfg["black_lower"], dtype=np.uint8)
-    black_upper = np.array(vision_cfg["black_upper"], dtype=np.uint8)
+    red_lower = np.array(vision_cfg["red_lower"], dtype=np.uint8)
+    red_upper = np.array(vision_cfg["red_upper"], dtype=np.uint8)
     min_zone_area = int(vision_cfg.get("min_zone_area", 2000))
     min_object_area = int(vision_cfg.get("min_object_area", 800))
 
@@ -63,10 +64,25 @@ def main():
         acc=ctrl_cfg["acc_deg_per_s2"],
         grip_closed_rad=ctrl_cfg["grip_closed_rad"],
         grip_open_rad=ctrl_cfg["grip_open_rad"],
+        z_lift=ctrl_cfg.get("z_lift_mm", 0.0),
     )
 
     controller = PickPlaceController(arm, pick_place_config)
     logger = TelemetryLogger("telemetry.log")
+
+    # Move to home pose once at startup, then wait a bit before arming automation
+    system_ready = False
+    homing_delay = float(settings.get("startup_homing_delay_s", 4.0))
+    print("Moving to home position...")
+    try:
+        controller.go_home()
+        # Give the arm time to physically reach home before enabling auto pick/place
+        print(f"Waiting {homing_delay}s for arm to reach home position...")
+        time.sleep(homing_delay)
+        system_ready = True
+        print("Home position reached. System ready.")
+    except Exception as e:
+        print("Warning: failed to move to home pose at startup:", e)
 
     busy = False
 
@@ -81,15 +97,15 @@ def main():
                 frame,
                 blue_lower,
                 blue_upper,
-                black_lower,
-                black_upper,
+                red_lower,
+                red_upper,
                 min_zone_area,
             )
 
             if origin_box:
                 draw_box(frame, origin_box, (255, 0, 0), "ORIGIN")
             if target_box:
-                draw_box(frame, target_box, (0, 0, 0), "TARGET")
+                draw_box(frame, target_box, (0, 0, 255), "TARGET")
 
             object_center = None
             if origin_box:
@@ -97,6 +113,7 @@ def main():
                     frame,
                     origin_box,
                     min_object_area=min_object_area,
+                    min_object_saturation=int(vision_cfg.get("min_object_saturation", 60)),
                 )
                 if object_center:
                     draw_object_center(frame, object_center)
@@ -106,9 +123,16 @@ def main():
             key = cv2.waitKey(1) & 0xFF
             if key == 27:  # ESC
                 break
+            elif key == ord('h') or key == ord('H'):  # H key to go home
+                print("Returning to home position...")
+                try:
+                    controller.go_home()
+                    print("Home position reached.")
+                except Exception as e:
+                    print("Error moving to home:", e)
 
-            # Trigger pick & place if object detected in origin and not currently busy
-            if not busy and origin_box and target_box and object_center:
+            # Trigger pick & place only after homing, if object detected in origin and not currently busy
+            if system_ready and not busy and origin_box and target_box and object_center:
                 busy = True
                 logger.log(
                     "pick_place_start",
