@@ -65,6 +65,7 @@ def main():
         grip_closed_rad=ctrl_cfg["grip_closed_rad"],
         grip_open_rad=ctrl_cfg["grip_open_rad"],
         z_lift=ctrl_cfg.get("z_lift_mm", 0.0),
+        pause_between_moves=ctrl_cfg.get("pause_between_moves", 0.5),
     )
 
     controller = PickPlaceController(arm, pick_place_config)
