@@ -3,6 +3,10 @@ Simple script to test which camera indices are available and display their feeds
 Press 'q' to move to the next camera, or ESC to exit.
 """
 import cv2
+import argparse
+
+# Maximum camera index to scan (can be overridden via command line)
+MAX_CAMERA_INDEX = 5
 
 def test_camera_index(index):
     """Test if a camera exists at the given index."""
@@ -16,11 +20,23 @@ def test_camera_index(index):
     return ret, frame
 
 def main():
-    print("Scanning for available cameras...")
+    parser = argparse.ArgumentParser(
+        description="Test which camera indices are available and display their feeds."
+    )
+    parser.add_argument(
+        "--max-index",
+        type=int,
+        default=MAX_CAMERA_INDEX,
+        help=f"Maximum camera index to scan (default: {MAX_CAMERA_INDEX})"
+    )
+    args = parser.parse_args()
+    
+    max_index = args.max_index
+    print(f"Scanning for available cameras (indices 0-{max_index})...")
     available_cameras = []
     
-    # Test indices 0-5 (usually enough for most systems)
-    for i in range(6):
+    # Test indices 0 to max_index
+    for i in range(max_index + 1):
         ret, frame = test_camera_index(i)
         if ret:
             height, width = frame.shape[:2]

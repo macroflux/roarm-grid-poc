@@ -17,6 +17,7 @@ class PickPlaceConfig:
     grip_closed_rad: float
     grip_open_rad: float
     z_lift: float = 0.0
+    pause_between_moves: float = 0.5
 
 
 class PickPlaceController:
@@ -44,6 +45,7 @@ class PickPlaceController:
 
         fb = self.arm.get_feedback()
         if not isinstance(fb, dict):
+            print("Warning: Failed to get valid arm feedback for z-lift. Skipping lift operation.")
             return
 
         try:
@@ -51,15 +53,17 @@ class PickPlaceController:
             y = fb["y"]
             z = fb["z"]
             t = fb.get("t", 0.0)
-        except KeyError:
+        except KeyError as e:
+            key_name = e.args[0] if e.args else 'unknown'
+            print(f"Warning: Arm feedback missing expected key '{key_name}'. Skipping lift operation.")
             return
 
         # Move slightly up (or down) from current pose
         self.arm.move_cartesian(x, y, z + delta_z, t)
 
-    def _pause(self, seconds: float = 0.5):
+    def _pause(self):
         """Small delay to let a motion segment settle before the next one."""
-        time.sleep(seconds)
+        time.sleep(self.cfg.pause_between_moves)
 
     def execute_pick_place(self):
         """
@@ -81,36 +85,36 @@ class PickPlaceController:
 
         # Move to safe home first
         self.go_home()
-        self._pause(0.5)
+        self._pause()
 
         # Go to origin
         self.arm.move_joints_deg_list(self.cfg.pose_above_origin, spd=spd, acc=acc)
-        self._pause(0.5)
+        self._pause()
         self._lift_z(self.cfg.z_lift)
 
         self.arm.move_joints_deg_list(self.cfg.pose_pick_origin, spd=spd, acc=acc)
-        self._pause(0.5)
+        self._pause()
         self.arm.close_grip(self.cfg.grip_closed_rad)
-        self._pause(0.5)
+        self._pause()
 
         self.arm.move_joints_deg_list(self.cfg.pose_above_origin, spd=spd, acc=acc)
-        self._pause(0.5)
+        self._pause()
         self._lift_z(self.cfg.z_lift)
 
         # Go to target
         self.arm.move_joints_deg_list(self.cfg.pose_above_target, spd=spd, acc=acc)
-        self._pause(0.5)
+        self._pause()
         self._lift_z(self.cfg.z_lift)
 
         self.arm.move_joints_deg_list(self.cfg.pose_place_target, spd=spd, acc=acc)
-        self._pause(0.5)
+        self._pause()
         self.arm.open_grip(self.cfg.grip_open_rad)
-        self._pause(0.5)
+        self._pause()
 
         self.arm.move_joints_deg_list(self.cfg.pose_above_target, spd=spd, acc=acc)
-        self._pause(0.5)
+        self._pause()
         self._lift_z(self.cfg.z_lift)
 
         # Return home
         self.go_home()
-        self._pause(0.5)
+        self._pause()
