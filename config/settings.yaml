@@ -26,6 +26,17 @@ vision:
   object_min_value: 60        # ignore very dark (near-black) pixels
   object_max_value: 220       # ignore very bright (near-white) pixels
 
+  # End-effector marker (neon pink sticker on gripper tip)
+  tip_pink_lower: [140, 80, 80]
+  tip_pink_upper: [170, 255, 255]
+  tip_min_area: 50  # minimum contour area for tip marker
+
+  # Color-specific object detection (red vs green objects)
+  object_red_lower: [0, 120, 80]
+  object_red_upper: [10, 255, 255]
+  object_green_lower: [40, 80, 80]
+  object_green_upper: [80, 255, 255]
+
 controller:
   # Pre-recorded joint angles in degrees for simple pick-and-place
   # You will fill these by using the Web UI and reading angles, then pasting here.
@@ -42,3 +53,11 @@ controller:
   grip_open_rad:    1.20   # clamp open (between 1.08 and 3.14)
   z_lift_mm:        50     # Z-axis lift amount (try 40-60 for higher clearance)
   pause_between_moves: 0.5  # seconds to wait between motion segments
+
+  # Visual push controller settings (image-based visual servoing)
+  push_safe_z: -250.0        # cartesian Z height for sliding (mm)
+  push_gain_xy: 0.5          # scale from pixel error -> (x,y) delta in mm
+  push_max_step_mm: 10.0     # clamp per-step motion
+  push_align_tolerance_px: 10  # how close in image before we start pushing
+  push_steps: 20             # how many increments to push
+  push_step_px: 15.0         # how far in image per push step
