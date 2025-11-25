@@ -9,32 +9,60 @@ def detect_object_in_origin(
     frame_bgr: np.ndarray,
     origin_box: Box,
     min_object_area: int,
-    min_object_saturation: int = 60,
+    object_min_saturation: int = 60,
+    object_min_value: int = 60,
+    object_max_value: int = 220,
 ) -> Optional[Tuple[int, int]]:
     """
-    Returns (cx, cy) of the largest non-background blob inside origin box,
-    or None if no significant object is detected.
+    Detect a 'real' object inside the origin zone.
 
-    Uses a saturation threshold to ignore grey/white background pixels.
+    We assume:
+      - Background is white-ish (low saturation, high value)
+      - Robot arm is black-ish (low value)
+      - Object is reasonably colorful and mid-bright
+
+    Returns (cx, cy) in full-frame coordinates, or None if nothing found.
     """
-
     x, y, w, h = origin_box.x, origin_box.y, origin_box.w, origin_box.h
-    roi = frame_bgr[y : y + h, x : x + w]
 
-    # 1) Basic threshold (for shape)
-    gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    # Optionally crop a bit inside the box to avoid tape edges
+    margin = int(min(w, h) * 0.10)
+    x0 = x + margin
+    y0 = y + margin
+    x1 = x + w - margin
+    y1 = y + h - margin
 
-    # 2) Saturation mask to ignore grey/white
+    # Bounds checking to ensure coordinates don't exceed frame boundaries
+    y0 = max(0, y0)
+    x0 = max(0, x0)
+    y1 = min(frame_bgr.shape[0], y1)
+    x1 = min(frame_bgr.shape[1], x1)
+
+    if x1 <= x0 or y1 <= y0:
+        return None
+
+    roi = frame_bgr[y0:y1, x0:x1]
+    if roi.size == 0:
+        return None
+
+    # Convert to HSV
     hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-    h, s, v = cv2.split(hsv)
-    sat_mask = cv2.inRange(s, min_object_saturation, 255)
+    _, s_ch, v_ch = cv2.split(hsv)
 
-    # 3) Combine: only high-saturation areas that also pass the threshold
-    combined = cv2.bitwise_and(thresh, sat_mask)
+    # Sufficiently colorful
+    sat_mask = cv2.inRange(s_ch, object_min_saturation, 255)
+    # Not too dark, not too bright
+    val_mask = cv2.inRange(v_ch, object_min_value, object_max_value)
 
-    contours, _ = cv2.findContours(combined, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Combined mask: colorful AND mid-bright
+    mask = cv2.bitwise_and(sat_mask, val_mask)
+
+    # Optional: clean up noise
+    kernel = np.ones((3, 3), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=1)
+
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if not contours:
         return None
 
@@ -50,9 +78,9 @@ def detect_object_in_origin(
     cx_local = int(M["m10"] / M["m00"])
     cy_local = int(M["m01"] / M["m00"])
 
-    # Convert back to frame coordinates
-    cx = x + cx_local
-    cy = y + cy_local
+    # Map back into full-frame coords (remember we cropped with margin)
+    cx = x0 + cx_local
+    cy = y0 + cy_local
     return cx, cy
 
 

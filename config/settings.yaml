@@ -21,8 +21,10 @@ vision:
   min_zone_area: 2000   # minimum contour area to treat as zone (px^2)
   min_object_area: 800  # minimum contour area inside origin box to treat as object
   
-  # Ignore low-saturation (grey/white) pixels when looking for objects
-  min_object_saturation: 60  # tune 50-80 to filter out background
+  # Ignore grey/white background + black robot when detecting objects
+  object_min_saturation: 60   # how "colorful" a pixel must be
+  object_min_value: 60        # ignore very dark (near-black) pixels
+  object_max_value: 220       # ignore very bright (near-white) pixels
 
 controller:
   # Pre-recorded joint angles in degrees for simple pick-and-place
