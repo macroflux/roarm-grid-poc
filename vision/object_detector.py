@@ -36,6 +36,8 @@ def detect_object_in_origin(
         return None
 
     roi = frame_bgr[y0:y1, x0:x1]
+    if roi.size == 0:
+        return None
 
     # Convert to HSV
     hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
