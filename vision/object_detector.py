@@ -32,6 +32,12 @@ def detect_object_in_origin(
     x1 = x + w - margin
     y1 = y + h - margin
 
+    # Bounds checking to ensure coordinates don't exceed frame boundaries
+    y0 = max(0, y0)
+    x0 = max(0, x0)
+    y1 = min(frame_bgr.shape[0], y1)
+    x1 = min(frame_bgr.shape[1], x1)
+
     if x1 <= x0 or y1 <= y0:
         return None
 
